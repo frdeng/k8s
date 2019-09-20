@@ -1,0 +1,45 @@
+Environment
+
+3 instances: 1 master, 2 worker nodes
+1 vnic: public and private IP
+OS: Centos 7
+
+OS configuration:
+- yum up to date
+- disable SELinux
+- disable firewalld
+- remove swap
+
+Install and start docker on master and nodes
+
+yum repo: https://download.docker.com/linux/centos/docker-ce.repo
+yum -y install docker-ce
+systemctl enable --now docker
+
+
+Install kubeadm,kubelet on master and nodes
+yum repo: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+yum -y install kubelet kubeadm --disableexcludes=kubernetes"
+
+Start kubelet
+systemctl enable --now kubelet
+
+Install kubectl on master, will be using kubectl on master
+yum -y install kubectl
+
+Master
+
+1. Initialize cluster with kubeadm
+kubeadm init --pod-network-cidr=192.168.0.0/16
+# 192.168.0.0/16 is required for Calico pod network add-on
+
+The command creates the cluster and tells you how to join the cluster from work nodes
+
+2. Configure ~/.kube/config for kubectl
+cp /etc/kubernetes/admin.conf ~/.kube/config
+
+3. Deploy pod network add-on - Calico
+kubectl apply -f https://docs.projectcalico.org/v3.8/manifests/calico.yaml
+
+Worker nodes:
+Join the cluster, run the command from 'kubeadm init' output.
