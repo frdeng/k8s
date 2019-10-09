@@ -43,10 +43,14 @@ CALICO_POD_NETWORK="192.168.0.0/16"
 CALICO_YML="https://docs.projectcalico.org/v3.9/manifests/calico.yaml"
 
 FLANNEL_POD_NETWORK="10.244.0.0/16"
-FLANNEL_YML="https://raw.githubusercontent.com/coreos/flannel/62e44c867a2846fefb68bd5f178daf4da3095ccb/Documentation/kube-flannel.yml"
+#FLANNEL_YML="https://raw.githubusercontent.com/coreos/flannel/62e44c867a2846fefb68bd5f178daf4da3095ccb/Documentation/kube-flannel.yml"
+FLANNEL_YML="https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
 #
-pod_network=$CALICO_POD_NETWORK
-network_yml=$CALICO_YML
+#pod_network=$CALICO_POD_NETWORK
+#network_yml=$CALICO_YML
+
+pod_network=$FLANNEL_POD_NETWORK
+network_yml=$FLANNEL_YML
 
 # $1=ip
 # $2=cmd
