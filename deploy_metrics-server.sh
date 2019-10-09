@@ -6,6 +6,8 @@
 
 set -ex
 
+rm -rf metrics-server
+
 git clone https://github.com/kubernetes-incubator/metrics-server.git
 
 kubectl apply -f metrics-server/deploy/1.8+/
