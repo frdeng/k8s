@@ -1,0 +1,23 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-deploy-hpa
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx-hpa
+    spec:
+      containers:
+      - name: nginx-hpa
+        image: nginx:1.8
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 30m
+            memory: 30Mi
+          limits:
+            cpu: 30m
+            memory: 30Mi

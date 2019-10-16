@@ -1,0 +1,148 @@
+HPA: horizontal pod autoscaling
+
+system metrics
+   container, node
+service metrics
+   defined in app code and exported.
+
+system metrics:
+  core metrics
+  non-core metrics
+
+  core metrics:
+    Kubernetes understands and uses for operation of its internal components and core utilities
+    scheduling, resource/vertical autoscaling, cluster horizonal pod autoscaling
+    $ kubectl top
+
+  non-core metrics:
+    None kubernetes
+
+Service metrics:
+  produced by kubernetes infrastructre compononents
+  produced by user applications
+
+  HPA inputs: custom metrics and core metrics
+
+
+Pipilines
+
+Core metrics pipline:
+  Sources:
+    kubelet per node/pod/container usage (cAdvisor)
+    resource estimator,  turns kubelet raw usage values into resource estimates(used by scheduler)
+
+  metrics-server: scrape the sources. stores only latest values. exposes master metrics API.
+  (Heapster standalone mode)
+
+   Doc: https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/metrics-server.md
+
+    metrics-server discovers all nodes on the cluster and queries each node’s kubelet for CPU and memory usage.
+    metrics-server Resource Metrics API: This API is served at /metrics/resource/v1beta1 on the kubelet’s authenticated and read-only ports.
+
+metrics-server replaces heapster
+
+deployed by kube-up.sh
+
+current version v0.3.x
+https://github.com/kubernetes-incubator/metrics-server
+
+API:
+metrics.k8s.io/v1beta1
+/metrics/resource/v1beta1
+
+Resource metrics pipeline: v1.8+
+
+
+deploy metrics-server:
+$ git clone https://github.com/kubernetes-incubator/metrics-server.git
+$ cd metrics-server
+$ git checkout tags/v0.3.4 -b v0.3.4
+$ kubectl create -f deploy/1.8+/
+$ kubectl edit deploy -n kube-system metrics-server
+    spec:
+      hostNetwork: true 
+      containers:
+      - image: ...
+        name: metrics-server
+        args:
+        - --kubelet-insecure-tls
+        - --kubelet-preferred-address-types=InternalIP
+
+$ kubectl get deploy,svc --all-namespaces
+$ kubectl top node
+$ kubectl top pod
+$ kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes" |jq .
+$ kubectl get --raw "/apis/metrics.k8s.io/v1beta1/pods" |jq .
+$ kubectl top pod <podname> --container
+
+api server raw metrics
+$ kubectl get --raw /metrics
+
+
+
+Prometheus:
+  cluster-level agent
+
+
+Core metrics
+  metrics for first class resource - for scheduling
+
+Metric: A measure of comsumption of resource.
+
+cAdvisor collecting interval: 10s by default
+
+kubelet: expose summay API - queries cAdvisor
+
+
+Prometheus metrics:
+prometheus with cAdvisor: https://github.com/google/cadvisor/blob/master/docs/storage/prometheus.md#prometheus-metrics
+
+Kube-prometheus
+https://github.com/coreos/kube-prometheus
+by coreos
+
+
+Prometheus operator
+https://github.com/coreos/prometheus-operator
+
+https://www.replex.io/blog/kubernetes-in-production-the-ultimate-guide-to-monitoring-resource-metrics
+
+Deploy:
+$ wget https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz
+$ tar -xf helm.tar.gz
+$ cd linux-amd64
+$ sudo cp helm /usr/local/bin
+$ helm init
+# serviceaccount
+$ kubectl create serviceaccount --namespace kube-system tiller
+# clusterrolebinding
+$ kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+# deployment
+$ kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
+# install
+$ helm install --name prom-operator stable/prometheus-operator --namespace monitoring
+
+
+# dash board
+$ kubectl port-forward --address 0.0.0.0 -n monitoring  prometheus-prom-operator-prometheus-o-prometheus-0 9090:9090
+http://localhost:9090
+$ kubectl get crd
+
+Undeploy:
+$ helm delete prom-operator
+kubectl delete crd prometheuses.monitoring.coreos.com
+kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd servicemonitors.monitoring.coreos.com
+kubectl delete crd podmonitors.monitoring.coreos.com
+kubectl delete crd alertmanagers.monitoring.coreos.com
+
+$ kubectl -n kube-system delete deployment tiller-deploy
+$ kubectl delete clusterrolebinding tiller-cluster-rule
+$ kubectl -n kube-system delete serviceaccount tiller
+
+kube-prometheus
+https://github.com/coreos/kube-prometheus
+
+$ kubectl create -f manifests/
+$ kubectl port-forward --address 0.0.0.0 pod/grafana-7b9578fb4-dqskm -n monitoring 3000:3000
+
