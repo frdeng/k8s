@@ -129,6 +129,14 @@ for ip in $CLUSTER_PUBLIC_IPS; do
     done
 done
 
+# patch kubelet for kube-prometheus
+#cmd="sudo bash -c 'echo KUBELET_EXTRA_ARGS=\"--authentication-token-webhook=true --authorization-mode=Webhook\" > /etc/sysconfig/kubelet'; sudo systemctl restart kubelet"
+#for ip in $CLUSTER_PUBLIC_IPS; do
+#    for cmd in "$cmd"; do
+#        ssh_cmd $ip "$cmd"
+#    done
+#done
+
 # Flannel specific config for bridge, pass bridge traffic for flannel
 cmd_sysctl="sudo bash -c 'cat <<EOF >  /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-ip6tables = 1
@@ -142,6 +150,8 @@ for ip in $CLUSTER_PUBLIC_IPS; do
         ssh_cmd $ip "$cmd"
     done
 done
+
+sleep 5
 
 # set up master
 #cmd="sudo kubeadm init --apiserver-advertise-address=$MASTER_IP --pod-network-cidr=$pod_network"
