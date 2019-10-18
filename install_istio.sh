@@ -24,7 +24,7 @@ if [ "$1" = install ]; then
     sleep 30
     kubectl -n istio-system get crds
 
-    helm install istio-1.3.3/install/kubernetes/helm/istio --name istio --namespace istio-system
+    helm install istio-$ISTIO_VERSION/install/kubernetes/helm/istio --name istio --namespace istio-system
     sleep 10
     kubectl -n istio-system get pods
     # set default istio injection to default ns
