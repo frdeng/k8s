@@ -23,18 +23,18 @@ if [ "$1" = install ]; then
     helm install istio-$ISTIO_VERSION/install/kubernetes/helm/istio-init --name istio-init --namespace istio-system
 
     # wait until all CRDs created
-    sleep 30
-    kubectl -n istio-system get crds
+    sleep 10
+    kubectl get crds | grep istio.io
     helm install istio-$ISTIO_VERSION/install/kubernetes/helm/istio --name istio --namespace istio-system
     sleep 10
     kubectl -n istio-system get pods
     # set default istio injection to default ns
     kubectl label namespace default istio-injection=enabled
 elif [ "$1" = uninstall ]; then
-    helm delete --purge istio
-    helm delete --purge istio-init
-    helm delete --purge istio-cni
-    kubectl delete namespace istio-system
+    helm delete --purge istio || :
+    helm delete --purge istio-init || :
+    helm delete --purge istio-cni || :
+    kubectl delete namespace istio-system || :
 elif [ "$1" = bookinfo ]; then
     kubectl apply -f istio-$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
 fi
