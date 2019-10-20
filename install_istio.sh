@@ -10,6 +10,9 @@
 # install: $0 install
 # deploy bookinfo sample: $0 bookinfo
 
+# notes:
+# istio v1.3.3 helm installation doesn't work withhelm 2.15
+
 set -ex
 
 if [ "$1" = install ]; then
