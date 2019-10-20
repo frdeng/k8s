@@ -21,7 +21,8 @@ $ ./deploy_metrics-server.sh
 ```
 $ ./deploy_kube-prometheus.sh
 ```
-Note that if you already have `metrics-server`, you can't deploy `kube-prometheus`
+Notes:
+* If you already have `metrics-server` deployed,  you may see some metrics api conflict error, just ignore.
 
 ## Install helm
 ```$ ./install_helm.sh```
