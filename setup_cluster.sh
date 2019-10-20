@@ -5,7 +5,7 @@
 # setup kubenetes cluster with kubeadm
 # 1 master, 2+ worker nodes all running Centos 7
 # The script creates latest kubenetes, also deploys Calico pod network add-on.
-# tested: k8s v1.15.4, v1.16.0
+# tested: k8s v1.15.4, -  v1.16.1
 
 # Usage:
 
@@ -170,7 +170,7 @@ which kubectl &>/dev/null &&
     source <(kubectl completion bash)
 alias k=kubectl
 complete -F __start_kubectl k
-alias kga='kubectl get deploy,pods,svc'
+alias kga='kubectl get all'
 EOF
 "
 ssh_cmd $MASTER_PUBLIC_IP "$cmd"
