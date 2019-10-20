@@ -26,7 +26,7 @@ Note that if you already have `metrics-server`, you can't deploy `kube-prometheu
 ## Install helm
 ```$ ./install_helm.sh```
 
-## Deploy metalLB
+## Deploy metalLB (Optional)
 ```$ ./deploy_metallb.sh```
 
 ## Install Istio
@@ -34,7 +34,9 @@ Install and deploy istio using `helm`, so install `helm` first.
 ```
 $ ./install_istio.sh install
 ```
-Note: istio deployment requires a lot cpu resource, on my 2 node, 2vcpu per node cluster, I have to delete previously deployed `kube-prometheus` to free cpu resource in order to deploy `Istio`.
+Notes:
+* istio deployment requires a lot cpu resource, on my 2 node, 2vcpu per node cluster, I have to delete previously deployed `kube-prometheus` to free cpu resource in order to deploy `Istio`.
+* In order to play virtualservice, istio-ingressgateway neeeds to be working, so need to deploy metallb first.
 
 Deploy the `bookinfo` example:
 ```
