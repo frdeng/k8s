@@ -16,6 +16,7 @@ curl -L https://git.io/get_helm.sh | bash
 # helm init --service-account tiller --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | sed 's@  replicas: 1@  replicas: 1\n  selector: {"matchLabels": {"app": "helm", "name": "tiller"}}@' | kubectl apply -f -
 
 helm init --service-account tiller
+sleep 10
 # create service account: tiller
 kubectl create serviceaccount --namespace kube-system tiller
 # and grant cluster admin permission to tiller

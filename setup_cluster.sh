@@ -16,6 +16,8 @@
 #   $0 create k8s cluster
 
 set -xe
+# install specific version k8s
+# KVER=1.16.1-0
 
 # log in user
 USER=opc
@@ -45,7 +47,7 @@ CALICO_YML="https://docs.projectcalico.org/v3.9/manifests/calico.yaml"
 FLANNEL_POD_NETWORK="10.244.0.0/16"
 #FLANNEL_YML="https://raw.githubusercontent.com/coreos/flannel/62e44c867a2846fefb68bd5f178daf4da3095ccb/Documentation/kube-flannel.yml"
 FLANNEL_YML="https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
-#
+
 #pod_network=$CALICO_POD_NETWORK
 #network_yml=$CALICO_YML
 
@@ -60,18 +62,21 @@ ssh_cmd() {
 
 #### reset
 if [ "$1" = reset ]; then
-    cmd="sudo kubeadm reset -f; sudo systemctl restart kubelet; rm -fr \$HOME/.kube; sudo rm -rf /var/log/pods; rm -rf ~/.helm"
+    cmd0="sudo kubeadm reset -f; sudo systemctl restart kubelet; rm -fr \$HOME/.kube; sudo rm -rf /var/log/pods; rm -rf ~/.helm"
+    # remove the packags in order to install old version
+    cmd1="sudo yum -y remove kubelet kubeadm kubectl"
     for ip in $CLUSTER_PUBLIC_IPS; do
-        for cmd in "$cmd"; do
+        for cmd in "$cmd0" "$cmd1"; do
             ssh_cmd $ip "$cmd"
         done
     done
-    # remove the packags in order to install old version
-    cmd="sudo yum -y remove kubelet kubeadm kubectl"
+    exit 0
+fi
+### reboot the nodes
+if [ "$1" = reboot ]; then
+    cmd="sudo reboot"
     for ip in $CLUSTER_PUBLIC_IPS; do
-        for cmd in "$cmd"; do
-            ssh_cmd $ip "$cmd"
-        done
+        ssh_cmd $ip "$cmd" || :
     done
     exit 0
 fi
@@ -119,8 +124,9 @@ EOF
 cmd_install_docker="sudo yum install -y docker-ce"
 
 cmd_install_kube="sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes"
-# install 1.15.3 for now until metrics-server works with 1.16
-#cmd_install_kube="sudo yum install -y kubelet-1.15.4-0 kubeadm-1.15.4-0 kubectl-1.15.4-0 --disableexcludes=kubernetes"
+if [ -n "$KVER" ]; then
+    cmd_install_kube="sudo yum install -y kubelet-$KVER kubeadm-$KVER kubectl-$KVER --disableexcludes=kubernetes"
+fi
 cmd_enable="sudo systemctl enable --now docker kubelet"
 
 for ip in $CLUSTER_PUBLIC_IPS; do
