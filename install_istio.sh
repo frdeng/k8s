@@ -2,13 +2,18 @@
 # install istio on kubernetes
 
 # run this script on the machine where you install and configure kubectl
+
 # note this requires helm is installed and configured with cluster admin role
 # see install_helm.sh
+
 # see also:
 # https://istio.io/docs/setup/install/helm/
+# bookinfo example: https://istio.io/docs/examples/bookinfo/
+
 # usage:
-# install: $0 install
-# deploy bookinfo sample: $0 bookinfo
+#   install: $0 install
+#   uninstall: $0 uninstall
+#   deploy bookinfo example: $0 bookinfo
 
 # notes:
 # istio v1.3.3 helm installation doesn't work withhelm 2.15
@@ -39,5 +44,7 @@ elif [ "$1" = uninstall ]; then
     helm delete --purge istio-cni || :
     kubectl delete namespace istio-system || :
 elif [ "$1" = bookinfo ]; then
+    ISTIO_VERSION=$(ls -d istio-* | sed 's/istio-//')
+    # suppose default ns has label: istio-injection=enabled
     kubectl apply -f istio-$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
 fi

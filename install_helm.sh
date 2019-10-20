@@ -20,10 +20,9 @@ fi
 
 # helm init: deploy tiller
 
+if [ "$VER" = v2.14.3 ]; then
 # helm v2.14.3 init doesn't work with k8s 1.16 due to the API version change
 # workaround
-
-if [ "$VER" = v2.14.3 ]; then
     helm init --service-account tiller --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | sed 's@  replicas: 1@  replicas: 1\n  selector: {"matchLabels": {"app": "helm", "name": "tiller"}}@' | kubectl apply -f -
 
 else
