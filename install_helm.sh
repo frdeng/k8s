@@ -40,3 +40,10 @@ kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admi
 
 kubectl get -n kube-system serviceaccounts tiller
 helm version
+
+# add bash completion
+if ! grep -q "helm completion bash" ~/.bashrc; then
+    cat >>  ~/.bashrc <<EOF
+command -v helm &>/dev/null && source <(helm completion bash)
+EOF
+fi

@@ -171,12 +171,14 @@ cmd="mkdir -p \$HOME/.kube;
      sudo chown \$(id -u):\$(id -g) \$HOME/.kube/config"
 ssh_cmd $MASTER_PUBLIC_IP "$cmd"
 
-cmd="grep -q kubectl ~/.bashrc || cat >> ~/.bashrc <<EOF
-which kubectl &>/dev/null &&
-    source <(kubectl completion bash)
+cmd="grep -q 'kubectl completion bash'  ~/.bashrc || cat >> ~/.bashrc <<EOF
+command -v kubectl &>/dev/null && source <(kubectl completion bash)
 alias k=kubectl
 complete -F __start_kubectl k
 alias kga='kubectl get all'
+alias kgak='kubectl get all -n kube-system'
+alias kgam='kubectl get all -n monitoring'
+alias kgai='kubectl get all -n istio-system'
 EOF
 "
 ssh_cmd $MASTER_PUBLIC_IP "$cmd"
