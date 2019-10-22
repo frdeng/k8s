@@ -18,8 +18,16 @@ kubectl describe services/kubernetes-bootcamp
 node_port=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
 
 #curl <cluster ip>:$node_port
-
 kubectl scale deployments/kubernetes-bootcamp --replicas=4
+
+#nginxdemos hello
+kubectl run nginxdemo --image nginxdemos/hello:plain-text
+# scale
+kubectl scale deployment nginxdemo --replicas=4
+# expose: NodePort
+#kubectl expose deployment nginxdemo --port 80 --type=NodePort
+# expose: LB
+kubectl expose deployment nginxdemo --port 80 --type=LoadBalancer
 
 # rolling update
 #kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v2
