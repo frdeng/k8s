@@ -1,5 +1,8 @@
 #!/bin/bash
 # deploy latest kube-prometheus on kubernetes
+# alternative way to install prometheus-operator:
+# install the stable prometheus-operator helm chart:
+# helm install --name my-prom --namespace monitoring stable/prometheus-operator
 
 # usage:
 # $0 - run this script on the machine where you install and configure kubectl
