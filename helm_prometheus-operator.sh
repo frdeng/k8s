@@ -15,7 +15,7 @@ name=my-prom
 
 # uninstall
 if [ "$1" = uninstall ]; then
-    helm delete $name
+    helm delete --purge $name || :
     kubectl delete crd prometheuses.monitoring.coreos.com ||:
     kubectl delete crd prometheusrules.monitoring.coreos.com ||:
     kubectl delete crd servicemonitors.monitoring.coreos.com ||:
