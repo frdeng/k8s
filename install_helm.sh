@@ -3,12 +3,26 @@
 # and configure tiller service account and and grant cluster admin role
 
 # usage:
-# run this script on the machine where you install and configure kubectl
+# $0 - run this script on the machine where you install and configure kubectl
+# $0 uninstall - to uninstall helm
 
 set -ex
 
 # specific helm version
 # VER=v2.14.3
+
+### uninstall
+if [ "$1" = uninstall ]; then
+    helm reset
+    # wait untill tiller is gone
+    while kubectl get -n kube-system pods | grep tiller-deploy; do
+        sleep 10
+    done
+    kubectl delete serviceaccounts -n kube-system tiller
+    kubectl delete clusterrolebindings tiller-cluster-rule
+    rm -rf ~/.helm
+    exit 0
+fi
 
 if [ -n "$VER" ]; then
     curl -L https://git.io/get_helm.sh > get_helm.sh
@@ -28,17 +42,20 @@ if [ "$VER" = v2.14.3 ]; then
 else
     helm init --service-account tiller
 fi
-# wait until tiller pod running
-while ! kubectl get -n kube-system pods | grep tiller-deploy; do
-    sleep 20
-done
 # create service account: tiller
 kubectl create serviceaccount --namespace kube-system tiller
+kubectl get -n kube-system serviceaccounts tiller
+
 # and grant cluster admin permission to tiller
 # as the prometheus, istio helm chart installation requires the permission
 kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
 
-kubectl get -n kube-system serviceaccounts tiller
+kubectl get clusterrolebinding tiller-cluster-rule
+
+# wait until tiller pod running
+while ! kubectl get -n kube-system pods | grep tiller-deploy | grep Running; do
+    sleep 10
+done
 helm version
 
 # add bash completion
@@ -47,3 +64,4 @@ if ! grep -q "helm completion bash" ~/.bashrc; then
 command -v helm &>/dev/null && source <(helm completion bash)
 EOF
 fi
+
