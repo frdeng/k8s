@@ -2,9 +2,15 @@
 # deploy latest kube-prometheus on kubernetes
 
 # usage:
-# run this script on the machine where you install and configure kubectl
+# $0 - run this script on the machine where you install and configure kubectl
+# $0 uninstall - remove kube-prometheus deployment
 
 set -xe
+
+if [ "$1" = uninstall ]; then
+    kubectl delete --ignore-not-found=true -f kube-prometheus/manifests/ -f kube-prometheus/manifests/setup
+    exit 0
+fi
 
 rm -rf kube-prometheus
 
@@ -19,3 +25,4 @@ sleep 10
 kubectl get crds | grep monitoring.coreos.com
 
 kubectl create -f kube-prometheus/manifests/ 
+
