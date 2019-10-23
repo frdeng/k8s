@@ -28,7 +28,9 @@ if [ "$1" = install ]; then
     sudo cp -f istio-$ISTIO_VERSION/bin/istioctl /usr/local/bin
 
     # helm install istio
-    helm install istio-$ISTIO_VERSION/install/kubernetes/helm/istio-init --name istio-init --namespace istio-system
+    helm install istio-$ISTIO_VERSION/install/kubernetes/helm/istio-init --name istio-init --namespace istio-system \
+    --set tracing.enabled=true \ # enable jaeger
+    --set grafana.enabled=true # enable grafana
 
     # wait until all CRDs created
     sleep 10
@@ -47,4 +49,6 @@ elif [ "$1" = bookinfo ]; then
     ISTIO_VERSION=$(ls -d istio-* | sed 's/istio-//')
     # suppose default ns has label: istio-injection=enabled
     kubectl apply -f istio-$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
+    # collect new metrics
+    # kubectl apply -f istio-$ISTIO_VERSION/samples/bookinfo/telemetry/metrics.yaml
 fi
