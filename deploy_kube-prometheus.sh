@@ -17,12 +17,11 @@ rm -rf kube-prometheus
 git clone https://github.com/coreos/kube-prometheus.git
 
 kubectl create -f kube-prometheus/manifests/setup
+sleep 20
+kubectl get crds | grep monitoring.coreos.com
+
+kubectl create -f kube-prometheus/manifests/
 while ! kubectl get servicemonitors --all-namespaces | grep monitoring; do
     sleep 10
 done
-sleep 10
-
-kubectl get crds | grep monitoring.coreos.com
-
-kubectl create -f kube-prometheus/manifests/ 
 
