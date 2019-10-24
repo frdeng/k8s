@@ -13,18 +13,23 @@ manifest=https://raw.githubusercontent.com/google/metallb/v0.8.1/manifests/metal
 
 usage () {
   echo "Usage:"
-  echo "$0 <ip_addresses>"
-  echo "ip_addresses samples:"
-  echo "10.0.0.1-10.0.0.10"
-  echo "10.0.0.0/30"
+  echo "$0 <CIDR> | uninstall"
+  echo "CIDR: e.g.10.0.1.120/30"
 }
 
 if [ -z "$1" ]; then
     usage
     exit 1
 fi
-ip_addresses=$1
+# uninstall
+if [ "$1" = uninstall ]; then
+    kubectl delete -f metallb_l2_config.yaml
+    kubectl delete -f $manifest
+    exit 0
+fi
 
+# install
+cidr==$1
 kubectl apply -f $manifest
 
 cat > metallb_l2_config.yaml <<EOF
@@ -39,7 +44,7 @@ data:
     - name: default
       protocol: layer2
       addresses:
-      - $ip_addresses
+      - $cidr
 EOF
 
 kubectl apply -f metallb_l2_config.yaml

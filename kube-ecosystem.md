@@ -5,7 +5,9 @@
 
 ## Platform/Framwork
 * Redhat - Openshift, OKD(Origin Community Distribution of Kubernetes)
-* Rancher, RKE
+* Rancher- RKE
+* Ubuntu- microk8s(single node)/charmed-kubernetes with juju(multi-node, cloud and local)
+* VMWare - vSphere
 
 
 ## CNCF projects
