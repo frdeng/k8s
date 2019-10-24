@@ -16,7 +16,6 @@
 #   deploy bookinfo example: $0 bookinfo
 
 # notes:
-# istio v1.3.3 helm installation doesn't work withhelm 2.15
 
 set -ex
 
