@@ -9,7 +9,7 @@
 set -ex
 
 # specific helm version
-# VER=v2.14.3
+VER=3
 
 ### uninstall
 if [ "$1" = uninstall ]; then
@@ -24,24 +24,25 @@ if [ "$1" = uninstall ]; then
     exit 0
 fi
 
-if [ -n "$VER" ]; then
-    curl -L https://git.io/get_helm.sh > get_helm.sh
-    chmod +x get_helm.sh
-    ./get_helm.sh --version $VER
-else
+echo "Installing helm $VER"
+if [ "$VER" = "2"  ]; then
     curl -L https://git.io/get_helm.sh | bash
+    #curl -L https://git.io/get_helm.sh > get_helm.sh
+    #chmod +x get_helm.sh
+    #./get_helm.sh --version $VER
+elif [ "$VER" = "3" ]; then
+    curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 fi
 
 # helm init: deploy tiller
 
-if [ "$VER" = v2.14.3 ]; then
+#if [ "$VER" = v2.14.3 ]; then
 # helm v2.14.3 init doesn't work with k8s 1.16 due to the API version change
 # workaround
-    helm init --service-account tiller --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | sed 's@  replicas: 1@  replicas: 1\n  selector: {"matchLabels": {"app": "helm", "name": "tiller"}}@' | kubectl apply -f -
+#    helm init --service-account tiller --output yaml | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | sed 's@  replicas: 1@  replicas: 1\n  selector: {"matchLabels": {"app": "helm", "name": "tiller"}}@' | kubectl apply -f -
+# fi
 
-else
-    helm init --service-account tiller
-fi
+helm init --service-account tiller
 # create service account: tiller
 kubectl create serviceaccount --namespace kube-system tiller
 kubectl get -n kube-system serviceaccounts tiller
